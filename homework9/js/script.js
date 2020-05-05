@@ -115,9 +115,6 @@ window.addEventListener("DOMContentLoaded", function () {
         contactForm = document.getElementById('form'),
         statusMessage;
 
-    mainForm.addEventListener('submit', handleForm(mainForm));
-    contactForm.addEventListener('submit', handleForm(contactForm));
-
     function handleForm(form) {
         let message = {
             loading: "Загрузка..",
@@ -164,4 +161,7 @@ window.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    handleForm(mainForm);
+    handleForm(contactForm);
 });
