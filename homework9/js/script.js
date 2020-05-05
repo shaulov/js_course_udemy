@@ -111,32 +111,33 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // FORM
 
-    let mainForm = document.querySelector('.main-form'),
-        contactForm = document.getElementById('form'),
-        statusMessage = document.createElement('div');
+    let mainForm = document.querySelector(".main-form"),
+        contactForm = document.getElementById("form"),
+        statusMessage = document.createElement("div");
 
     function handleForm(form) {
         let message = {
             loading: "Загрузка..",
             success: "Спасибо! Мы скоро свяжемся с Вами",
-            failure: "Что-то пошло не так"
+            failure: "Что-то пошло не так",
         };
 
-        let input = form.getElementsByTagName('input');
+        let input = form.getElementsByTagName("input");
 
-        statusMessage.classList.add('status');
+        statusMessage.classList.add("status");
 
-        form.addEventListener('submit', function (event) {
+        form.addEventListener("submit", function (event) {
             event.preventDefault();
-            form.insertAdjacentElement('beforeend', statusMessage);
+            form.insertAdjacentElement("beforeend", statusMessage);
 
             function postData(data) {
-
                 return new Promise(function (resolve, reject) {
-
                     let request = new XMLHttpRequest();
-                    request.open('POST', 'server.php');
-                    request.setRequestHeader('Content-Type', 'aplication/json; charset=utf-8');
+                    request.open("POST", "server.php");
+                    request.setRequestHeader(
+                        "Content-Type",
+                        "aplication/json; charset=utf-8"
+                    );
 
                     let formData = new FormData(data);
 
@@ -163,19 +164,67 @@ window.addEventListener("DOMContentLoaded", function () {
 
             function clearInput() {
                 for (let i = 0; i < input.length; i++) {
-                    input[i].value = '';
+                    input[i].value = "";
                 }
             }
 
             postData(form)
-                .then(() => statusMessage.innerHTML = message.success)
-                .catch(() => statusMessage.innerHTML = message.failure)
+                .then(() => (statusMessage.innerHTML = message.success))
+                .catch(() => (statusMessage.innerHTML = message.failure))
                 .finally(clearInput);
         });
-
-
     }
 
     handleForm(mainForm);
     handleForm(contactForm);
+
+    //SLIDER
+    let slideIndex = 0,
+        slides = document.querySelectorAll(".slider-item"),
+        prev = document.querySelector(".prev"),
+        next = document.querySelector(".next"),
+        dotsWrap = document.querySelector(".slider-dots"),
+        dots = document.querySelectorAll(".dot");
+
+    showSlides(slideIndex);
+
+    function showSlides(n) {
+        if (n > slides.length - 1) {
+            slideIndex = 0;
+        }
+
+        if (n < 0) {
+            slideIndex = slides.length - 1;
+        }
+
+        slides.forEach((item) => (item.style.display = "none"));
+        dots.forEach((item) => item.classList.remove("dot-active"));
+
+        slides[slideIndex].style.display = "block";
+        dots[slideIndex].classList.add("dot-active");
+    }
+
+    function plusSlides(n) {
+        showSlides((slideIndex += n));
+    }
+
+    function currentSlide(n) {
+        showSlides((slideIndex = n));
+    }
+
+    prev.addEventListener("click", function () {
+        plusSlides(-1);
+    });
+
+    next.addEventListener("click", function () {
+        plusSlides(1);
+    });
+
+    dotsWrap.addEventListener("click", function (event) {
+        for (let i = 0; i < dots.length; i++) {
+            if (event.target.classList.contains("dot") && event.target == dots[i]) {
+                currentSlide(i);
+            }
+        }
+    });
 });
