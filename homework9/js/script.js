@@ -113,7 +113,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     let mainForm = document.querySelector('.main-form'),
         contactForm = document.getElementById('form'),
-        statusMessage;
+        statusMessage = document.createElement('div');
 
     function handleForm(form) {
         let message = {
@@ -122,8 +122,7 @@ window.addEventListener("DOMContentLoaded", function () {
             failure: "Что-то пошло не так"
         };
 
-        let input = form.getElementsByTagName('input'),
-            statusMessage = document.createElement('div');
+        let input = form.getElementsByTagName('input');
 
         statusMessage.classList.add('status');
 
@@ -131,35 +130,50 @@ window.addEventListener("DOMContentLoaded", function () {
             event.preventDefault();
             form.insertAdjacentElement('beforeend', statusMessage);
 
-            let request = new XMLHttpRequest();
-            request.open('POST', 'server.php');
-            request.setRequestHeader('Content-Type', 'aplication/json', 'charset=utf-8');
+            function postData(data) {
 
-            let formData = new FormData(form);
+                return new Promise(function (resolve, reject) {
 
-            let obj = {};
-            formData.forEach(function (value, key) {
-                obj[key] = value;
-            });
+                    let request = new XMLHttpRequest();
+                    request.open('POST', 'server.php');
+                    request.setRequestHeader('Content-Type', 'aplication/json; charset=utf-8');
 
-            let json = JSON.stringify(obj);
+                    let formData = new FormData(data);
 
-            request.send(json);
+                    let obj = {};
+                    formData.forEach(function (value, key) {
+                        obj[key] = value;
+                    });
 
-            request.addEventListener('readystatechange', function () {
-                if (request.readyState < 4) {
-                    statusMessage.innerHTML = message.loading;
-                } else if (request.readyState === 4 && request.status == 200) {
-                    statusMessage.innerHTML = message.success;
-                } else {
-                    statusMessage.innerHTML = message.failure;
-                }
-            });
+                    let json = JSON.stringify(obj);
 
-            for (let i = 0; i < input.length; i++) {
-                input[i].value = '';
+                    request.send(json);
+
+                    request.onreadystatechange = function () {
+                        if (request.readyState < 4) {
+                            resolve();
+                        } else if (request.readyState === 4 && request.status == 200) {
+                            resolve();
+                        } else {
+                            reject();
+                        }
+                    };
+                });
             }
+
+            function clearInput() {
+                for (let i = 0; i < input.length; i++) {
+                    input[i].value = '';
+                }
+            }
+
+            postData(form)
+                .then(() => statusMessage.innerHTML = message.success)
+                .catch(() => statusMessage.innerHTML = message.failure)
+                .finally(clearInput);
         });
+
+
     }
 
     handleForm(mainForm);
